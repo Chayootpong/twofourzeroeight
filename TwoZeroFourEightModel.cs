@@ -10,6 +10,7 @@ namespace twozerofoureight
     {
         protected int boardSize; // default is 4
         protected int[,] board;
+        protected int[,] var = new int[6, 6];
         protected Random rand;
 
         public TwoZeroFourEightModel() : this(4)
@@ -35,14 +36,16 @@ namespace twozerofoureight
             rand = new Random();
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         private int[,] Random(int[,] input)
         {
-            while (true)
+            while (CheckFull() < 16)
             {
                 int x = rand.Next(boardSize);
                 int y = rand.Next(boardSize);
+
                 if (board[x, y] == 0)
                 {
                     board[x, y] = 2;
@@ -59,6 +62,7 @@ namespace twozerofoureight
             int[] rangeX = Enumerable.Range(0, boardSize).ToArray();
             int[] rangeY = Enumerable.Range(0, boardSize).ToArray();
             Array.Reverse(rangeY);
+
             foreach (int i in rangeX)
             {
                 pos = 0;
@@ -76,6 +80,7 @@ namespace twozerofoureight
                         pos++;
                     }
                 }
+
                 // check duplicate
                 foreach (int j in rangeX)
                 {
@@ -103,6 +108,7 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         public void PerformUp()
@@ -111,6 +117,7 @@ namespace twozerofoureight
             int pos;
 
             int[] range = Enumerable.Range(0, boardSize).ToArray();
+
             foreach (int i in range)
             {
                 pos = 0;
@@ -128,6 +135,7 @@ namespace twozerofoureight
                         pos++;
                     }
                 }
+
                 // check duplicate
                 foreach (int j in range)
                 {
@@ -155,6 +163,7 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         public void PerformRight()
@@ -165,6 +174,7 @@ namespace twozerofoureight
             int[] rangeX = Enumerable.Range(0, boardSize).ToArray();
             int[] rangeY = Enumerable.Range(0, boardSize).ToArray();
             Array.Reverse(rangeX);
+
             foreach (int i in rangeY)
             {
                 pos = 0;
@@ -182,6 +192,7 @@ namespace twozerofoureight
                         pos++;
                     }
                 }
+
                 // check duplicate
                 foreach (int j in rangeY)
                 {
@@ -209,6 +220,7 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         public void PerformLeft()
@@ -233,6 +245,7 @@ namespace twozerofoureight
                         pos++;
                     }
                 }
+
                 // check duplicate
                 foreach (int j in range)
                 {
@@ -259,6 +272,88 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
+        }
+
+        public int CheckFull()
+        {
+            isFull = 0;
+
+            for (int x = 0; x < 4; x++)
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    if (board[x, y] > 0)
+                    {
+                        isFull++;
+                    }
+                }
+            }
+
+            return isFull;
+        }
+
+        public void CheckEndGame()
+        {
+            bool[] status = new bool[16];
+            int count = 0;
+
+            for (int w = 0; w < 16; w++)
+            {
+                status[w] = true;
+            }
+
+            for (int x = 0; x < 6; x++)
+            {
+                for (int y = 0; y < 6; y++)
+                {
+                    if (x == 0 || y == 0 || x == 5 || y == 5)
+                    {
+                        var[x, y] = 0;
+                    }
+
+                    else
+                    {
+                        var[x, y] = board[x - 1, y - 1];
+                    }
+
+                    //Console.Write(var[x, y] + " ");
+                }
+
+                //Console.WriteLine();
+            }
+
+            for (int x = 1; x < 5; x++)
+            {
+                for (int y = 1; y < 5; y++)
+                {
+                    if (var[x, y] != var[x - 1, y] && var[x, y] != var[x + 1, y] && var[x, y] != var[x, y - 1] && var[x, y] != var[x, y + 1])
+                    {
+                        status[count] = false;
+                    }
+
+                    else
+                    {
+                        break;
+                    }
+
+                    count++;
+                }
+            }
+
+            for (int x = 0; x < 16; x++)
+            {
+                if (status[x])
+                {
+                    isEnd = false;
+                    break;
+                }
+
+                else if (x == 15 && !status[15])
+                {
+                    isEnd = true;
+                }
+            }           
         }
     }
 }
